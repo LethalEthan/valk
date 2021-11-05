@@ -22,6 +22,6 @@ fn main() {
 	} 
 	logger.info('looks good! starting...')
 
-	server.create_new()
-	//logger.info(server)
+	server := server.create_new()
+	logger.info(server.str())
 }

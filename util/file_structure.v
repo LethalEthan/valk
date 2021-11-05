@@ -11,7 +11,7 @@ pub fn setup_file_structure() bool {
 }
 
 fn setup_config() bool {
-	config_path := '${os.executable().all_before('valk.exe')}config.naml'
+	config_path := '${os.executable().all_before('valk.exe')}config.json'
 
 	if !os.exists(config_path) {
 		os.create(config_path) or {
@@ -19,14 +19,16 @@ fn setup_config() bool {
 		}
 		os.write_file(config_path,
 //yes, this is ugly and i could do it better but hey, it works
-'net {
-	port = 25565
-}
-serverinfo {
-	motd = "This server is running on Valk!"
-	icon = ""
-}
-'		) or {
+'{
+	"net": {
+		"port": 25565
+	},
+	"serverinfo": {
+		"motd": "This server is running on Valk!",
+		"icon": ""
+	}
+}'
+		) or {
 			panic('could not write to config')
 		}
 		return true
