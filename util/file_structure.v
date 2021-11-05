@@ -3,7 +3,9 @@ module util
 import os
 
 pub const (
-	root_folder = os.executable().all_before('valk.exe')
+	root_folder_win = os.executable().all_before('valk.exe')
+	root_folder_nix = os.executable().all_before_last('valk')
+	operating_system = os.user_os()
 )
 
 pub fn setup_file_structure() bool {
@@ -11,24 +13,20 @@ pub fn setup_file_structure() bool {
 }
 
 fn setup_config() bool {
-	config_path := '${os.executable().all_before('valk.exe')}config.json'
+
+	mut config_path := ''
+	//readd os check
+	if os.user_os() == 'windows' {
+		config_path = '${os.executable().all_before('valk.exe')}config.json'
+	} else {
+		config_path = '${os.executable().all_before_last('valk')}config.json'
+	}
 
 	if !os.exists(config_path) {
 		os.create(config_path) or {
 			panic('could not create config')
 		}
-		os.write_file(config_path,
-//yes, this is ugly and i could do it better but hey, it works
-'{
-	"net": {
-		"port": 25565
-	},
-	"serverinfo": {
-		"motd": "This server is running on Valk!",
-		"icon": ""
-	}
-}'
-		) or {
+		os.write_file(config_path, config_content) or {
 			panic('could not write to config')
 		}
 		return true
