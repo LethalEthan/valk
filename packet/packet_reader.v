@@ -1,6 +1,6 @@
-module packet.reader
+module packet
 
-pub fn read_varint() {
+pub fn read_varint() int {
 	mut value := 0
     mut bitOffset := 0
     mut currentByte := byte(0)

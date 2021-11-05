@@ -4,6 +4,7 @@ import os
 import log
 
 import util
+import server
 
 fn main() {
 
@@ -21,4 +22,6 @@ fn main() {
 	} 
 	logger.info('looks good! starting...')
 
+	server.create_new()
+	//logger.info(server)
 }
