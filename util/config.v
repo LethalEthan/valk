@@ -43,3 +43,24 @@ pub fn get_config() map[string]json2.Any {
 	return conf_jsonstr.as_map()
 }
 
+fn setup_config() bool {
+
+	mut config_path := ''
+	//readd os check
+	if os.user_os() == 'windows' {
+		config_path = '${os.executable().all_before('valk.exe')}config.json'
+	} else {
+		config_path = '${os.executable().all_before_last('valk')}config.json'
+	}
+
+	if !os.exists(config_path) {
+		os.create(config_path) or {
+			panic('could not create config')
+		}
+		os.write_file(config_path, config_content) or {
+			panic('could not write to config')
+		}
+		return true
+	}
+	return false
+}

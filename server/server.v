@@ -28,7 +28,7 @@ pub fn create_new() Server {
 	return Server{
 		port: port.int()
 		icon: icon
-		tcp: net.listen_tcp(net.AddrFamily.ip, 'localhost:$port') or {
+		tcp: net.listen_tcp(net.AddrFamily.ip, '0.0.0.0:$port') or {
 			panic('could not start to listen on port $port')
 		} 
 		motd: motd

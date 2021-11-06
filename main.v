@@ -2,7 +2,6 @@ module main
 
 import os
 import log
-import net
 
 import util
 import server
@@ -25,9 +24,6 @@ fn main() {
 
 	mut server := server.create_new()
 	logger.info('listening on port $server.port')
-	server.tcp.sock.set_option_bool(net.SocketOption.keep_alive, true) or {
-		panic('failed to set option')
-	}
 
 	for {
 		conn := server.tcp.accept() or { panic(err) }
