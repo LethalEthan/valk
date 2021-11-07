@@ -2,6 +2,7 @@ module main
 
 import os
 import log
+import net
 
 import util
 import server
@@ -25,8 +26,27 @@ fn main() {
 	mut server := server.create_new()
 	logger.info('listening on port $server.port')
 
+	//TODO: handle incoming traffic correctly
+	accept_conn(mut server, mut logger)
+}
+
+fn accept_conn(mut server server.Server, mut logger log.Log) {
 	for {
-		conn := server.tcp.accept() or { panic(err) }
-		println(conn)
+		mut conn := server.tcp.accept() or { panic('could not receive connection') }
+		addr := conn.addr() or { panic('unable to get address from connection') }
+		logger.info('connection received from $addr')
+		handle_conn(mut conn, mut logger)
+	}
+}
+
+fn handle_conn(mut conn net.TcpConn, mut logger log.Log) {
+	mut buf := []byte{cap: 2097151}
+	for {
+		buf << byte(conn.read(mut buf) or { 
+				logger.error('can not read packet, skipping...')
+				panic(buf.str())
+			})
+
+		logger.info('read: ${buf.str()}}')
 	}
 }
