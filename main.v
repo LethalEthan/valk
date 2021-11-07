@@ -44,14 +44,8 @@ fn handle_conn(mut conn net.TcpConn, mut logger log.Log) {
 	mut buf := []byte{len: 2097151}
 	mut byte_counter := 0
 	for {
-		byte_counter = conn.read(mut buf) or { 
-			logger.error('can not read packet, skipping...')
-			logger.error('${buf[..byte_counter].str()}, ${byte_counter.str()}')
-			conn.close() or { panic('unable to close the connection') }
-			panic(err)
-		}
+		byte_counter = conn.read(mut buf) or { return }
+		//conn.close() or { panic('unable to close the connection outer') }
 		logger.info('read: ${buf[..byte_counter].str()}, $byte_counter bytes large')
 	}
-	buf.clear()
-	byte_counter = 0
 }
