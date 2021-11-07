@@ -48,6 +48,9 @@ fn handle_conn(mut conn net.TcpConn, mut logger log.Log, addr net.Addr) {
 			logger.info('client<$addr> has disconnected')
 			return
 		}
-		logger.info('read: ${buf[..byte_counter].str()}, $byte_counter bytes large')
+		if buf[0] > byte_counter-1 || buf[0] < byte_counter-1 {
+			logger.error('packet is the wrong size! expected: ${buf[0]}, got: $byte_counter')
+		}
+		logger.info('read: ${buf[..byte_counter].str()} | size of $byte_counter bytes')
 	}
 }
