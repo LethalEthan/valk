@@ -36,16 +36,18 @@ fn accept_conn(mut server server.Server, mut logger log.Log) {
 		conn.set_blocking(true) or { panic('could not set connection to blocking') }
 		addr := conn.addr() or { panic('unable to get address from connection') }
 		logger.info('connection received from $addr')
-		handle_conn(mut conn, mut logger)
+		handle_conn(mut conn, mut logger, addr)
 	}
 }
 
-fn handle_conn(mut conn net.TcpConn, mut logger log.Log) {
+fn handle_conn(mut conn net.TcpConn, mut logger log.Log, addr net.Addr) {
 	mut buf := []byte{len: 2097151}
 	mut byte_counter := 0
 	for {
-		byte_counter = conn.read(mut buf) or { return }
-		//conn.close() or { panic('unable to close the connection outer') }
+		byte_counter = conn.read(mut buf) or { 
+			logger.info('client<$addr> has disconnected')
+			return
+		}
 		logger.info('read: ${buf[..byte_counter].str()}, $byte_counter bytes large')
 	}
 }

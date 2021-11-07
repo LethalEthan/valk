@@ -5,7 +5,7 @@ import encoding.binary
 // all is mutable to reduce on object creations
 // so yes, giving each connection a single packetreader
 [heap]
-struct PacketReader {
+pub struct PacketReader {
 mut:
     data    []byte
     length  int
