@@ -32,11 +32,14 @@ fn main() {
 
 fn accept_conn(mut server server.Server, mut logger log.Log) {
 	for {
-		mut conn := server.tcp.accept() or { panic('could not receive connection') }
+		mut conn := server.tcp.accept() or {
+			logger.error('could not receive connection')
+			continue
+		}
 		conn.set_blocking(true) or { panic('could not set connection to blocking') }
 		addr := conn.addr() or { panic('unable to get address from connection') }
 		logger.info('connection received from $addr')
-		handle_conn(mut conn, mut logger, addr)
+		go handle_conn(mut conn, mut logger, addr)
 	}
 }
 
@@ -48,6 +51,9 @@ fn handle_conn(mut conn net.TcpConn, mut logger log.Log, addr net.Addr) {
 			logger.info('client<$addr> has disconnected')
 			return
 		}
-		logger.info('read: ${buf[..byte_counter].str()}, $byte_counter bytes large')
+		// if buf[0] > byte_counter-1 || buf[0] < byte_counter-1 {
+		// 	logger.error('packet is the wrong size! expected: ${buf[0]}, got: $byte_counter')
+		// }
+		logger.info('read: ${buf[..byte_counter].str()} | size of $byte_counter bytes')
 	}
 }
