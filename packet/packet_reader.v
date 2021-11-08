@@ -127,14 +127,41 @@ pub fn (p &PacketReader) read_ulong() u64 {
     return us
 }
 
+pub fn (p &PacketReader) read_string() string {
+	if p.check_end() {
+		return none
+	}
+	//Read string size
+	StringSize := p.read_varint()
+	if p.check_end() {
+		return none
+	//StringSize check
+	if StringSize < 0 {
+		return none
+	}
+	if p.check_end_with_offset(StringSize) {
+        return none
+    }
+	//Read the string
+	StringVal := string(p.data[p.index : p.index+StringSize])
+	//move the Seek
+    p.seek(StringSize)or {
+        panic('Could not seek to stringsize! $StringSize')
+    }
+	return StringVal, nil
+}
+
 // check if the packetreader is at the end of packet
 pub fn (p &PacketReader) check_end() bool {
-    return p.index >= p.length
+    return p.index > p.length
 }
 
 // check if the packetreader can seek forward by `offset` bytes
 pub fn (p &PacketReader) check_end_with_offset(offset int) bool {
-    return p.index + offset >= p.length
+    if offsest > 0 { 
+        return p.index + offset > p.length
+    }
+    return true
 }
 
 // increases the index by offsest
