@@ -30,12 +30,12 @@ pub fn (p &PacketReader) read_varint() int {
 
 	mut value := 0
     mut bitOffset := 0
-    mut currentByte := p.read_byte()
+    mut currentByte := p.read_ubyte()
 
 	for ((currentByte & 0b10000000) != 0) {
 		if (bitOffset == 5) panic("VarInt is too big")
 
-        currentByte = read_byte()
+        currentByte = p.read_ubyte()
         value |= (currentByte & 0b01111111) << bitOffset;
 
         ++bitOffset
@@ -51,12 +51,12 @@ pub fn (p &PacketReader) read_varlong() i64 {
 
 	mut value := 0
     mut bitOffset := 0
-    mut currentByte := p.read_byte()
+    mut currentByte := p.read_ubyte()
 
 	for ((currentByte & 0b10000000) != 0) {
 		if (bitOffset == 10) panic("VarInt is too big")
 
-        currentByte = read_byte()
+        currentByte = p,read_ubyte()
         value |= (currentByte & 0b01111111) << bitOffset;
 
         ++bitOffset
