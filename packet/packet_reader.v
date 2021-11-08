@@ -45,6 +45,27 @@ pub fn (p &PacketReader) read_varint() int {
     
 }
 
+pub fn (p &PacketReader) read_varlong() i64 {
+
+    if check_end() return none
+
+	mut value := 0
+    mut bitOffset := 0
+    mut currentByte := p.read_byte()
+
+	for ((currentByte & 0b10000000) != 0) {
+		if (bitOffset == 10) panic("VarInt is too big")
+
+        currentByte = read_byte()
+        value |= (currentByte & 0b01111111) << bitOffset;
+
+        ++bitOffset
+	}
+
+    return value;
+    
+}
+
 pub fn (p &PacketReader) read_boolean() bool {
     b := read_ubyte()
     if b > 0 {
