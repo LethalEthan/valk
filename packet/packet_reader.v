@@ -65,6 +65,10 @@ pub fn (p &PacketReader) read_unsigned_short() u16 {
     return us
 }
 
+pub fn (p &PacketReader) read_short() i16 {
+    return i16(read_signed_short())
+}
+
 // check if the packetreader is at the end of packet
 pub fn (p &PacketReader) check_end() bool {
     return p.index >= p.length
@@ -75,7 +79,7 @@ pub fn (p &PacketReader) check_end_with_offset(offset int) bool {
     return p.index + offset >= p.length
 }
 
-// increases the index
+// increases the index by offsest
 pub fn (p &PacketReader) seek(offset int) ? {
     if !check_end_with_offset(offset) {
         p.index += offset

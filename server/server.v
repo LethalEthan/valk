@@ -1,6 +1,8 @@
 module server
 
 import net
+import log
+import x.json2
 
 import util
 
@@ -16,14 +18,22 @@ pub mut:
 
 pub fn create_new() Server {
 
+	mut logger := log.Log {
+		level: log.Level.info
+		output_target: log.LogTarget.console
+	}
+
 	conf := util.get_config()
 
 	net_conf := conf['net'] or { panic(bad_section('net')) }.as_map()
-	serverinfo_conf := conf['server'] or { panic(bad_section('server')) }.as_map()
+	server_conf := conf['server'] or { panic(bad_section('server')) }.as_map()
 
-	port := net_conf['port'] or {panic('can not read field')}.str()
-	motd := serverinfo_conf['motd'] or {panic('can not read field')}.str()
-	icon := serverinfo_conf['icon'] or {panic('can not read field')}.str()
+	port := net_conf['port'] or { panic(bad_field('port')) }.str()
+	motd := server_conf['motd'] or { 
+		logger.error(bad_field('motd'))
+		json2.Any('This server is running Valk!')	
+	}.str()
+	icon := server_conf['icon'] or { json2.Any('') }.str()
 
 	return Server{
 		port: port.int()
@@ -40,5 +50,9 @@ pub fn (s Server) str() string {
 }
 
 fn bad_section(str string) string {
-	return 'can not read section "$str" in config'
+	return 'can not read section "$str" in config. please check your configuration file!'
+}
+
+fn bad_field(str string) string {
+	return 'can not read field "$str"'
 }
