@@ -12,7 +12,7 @@ mut:
     index   int
 }
 
-pub fn create_packet_reader(data []byte) {
+pub fn create_packet_reader(data []byte) PacketReader {
     //ethan you may not PR a fix for this
     if !data.len == 0 {
         return PacketReader {
@@ -21,9 +21,7 @@ pub fn create_packet_reader(data []byte) {
             0
         }
     } 
-
     return none
-
 }
 
 pub fn (p &PacketReader) read_varint() int {
@@ -47,7 +45,37 @@ pub fn (p &PacketReader) read_varint() int {
     
 }
 
-pub fn (p &PacketReader) read_byte() byte {
+pub fn (p &PacketReader) read_varlong() i64 {
+
+    if check_end() return none
+
+	mut value := 0
+    mut bitOffset := 0
+    mut currentByte := p.read_byte()
+
+	for ((currentByte & 0b10000000) != 0) {
+		if (bitOffset == 10) panic("VarInt is too big")
+
+        currentByte = read_byte()
+        value |= (currentByte & 0b01111111) << bitOffset;
+
+        ++bitOffset
+	}
+
+    return value;
+    
+}
+
+pub fn (p &PacketReader) read_boolean() bool {
+    b := read_ubyte()
+    if b > 0 {
+        return true
+    } else {
+        return false
+    }
+}
+
+pub fn (p &PacketReader) read_ubyte() byte {
     if p.check_end_with_offset(1) return none
     b := p.data[p.index]
     p.seek(1) or {
@@ -56,9 +84,13 @@ pub fn (p &PacketReader) read_byte() byte {
     return b
 }
 
-pub fn (p &PacketReader) read_unsigned_short() u16 {
+pub fn (p &PacketReader) read_byte() i8 {
+    return i8(read_ubyte())
+}
+
+pub fn (p &PacketReader) read_ushort() u16 {
     if p.check_end_with_offset(2) return none
-    us := binary.big_endian_u16(p.data[p.index..p.index+1])
+    us := binary.big_endian_u16(p.data[p.index..p.index+2])
     p.seek(2) or {
         panic('somehow the packet managed to slip past 2 checks')
     }
@@ -66,7 +98,33 @@ pub fn (p &PacketReader) read_unsigned_short() u16 {
 }
 
 pub fn (p &PacketReader) read_short() i16 {
-    return i16(read_signed_short())
+    return i16(read_ushort())
+}
+
+pub fn (p &PacketReader) read_uint() u32 {
+    if p.check_end_with_offset(4) return none
+    us := binary.big_endian_u32(p.data[p.index..p.index+4])
+    p.seek(4) or {
+        panic('somehow the packet managed to slip past 2 checks')
+    }
+    return us
+}
+
+pub fn (p &PacketReader) read_int() int {
+    return int(read_uint())
+}
+
+pub fn (p &PacketReader) read_long() i64 {
+    return i64(read_ulong())
+}
+
+pub fn (p &PacketReader) read_ulong() u64 {
+    if p.check_end_with_offset(8) return none
+    us := binary.big_endian_u64(p.data[p.index..p.index+8])
+    p.seek(8) or {
+        panic('somehow the packet managed to slip past 2 checks')
+    }
+    return us
 }
 
 // check if the packetreader is at the end of packet
