@@ -20,8 +20,3 @@ pub struct SB_EncryptResp {
 	verify_length	int
 	verify_token	[]byte
 }
-
-// clientbound packet 0x00
-// pub struct CB_Disconnect {
-// 	reason		Chat
-// }
